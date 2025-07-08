@@ -1,0 +1,821 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Customer Reservations API",
+    "description": "API para gestión de clientes y reservaciones de servicios",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "email": "support@example.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4000/api",
+      "description": "Servidor de desarrollo"
+    }
+  ],
+  "paths": {
+    "/customers": {
+      "get": {
+        "summary": "Obtener todos los clientes",
+        "description": "Retorna una lista de todos los clientes registrados",
+        "tags": ["Customers"],
+        "responses": {
+          "200": {
+            "description": "Lista de clientes obtenida exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Customer"
+                  }
+                },
+                "examples": {
+                  "success": {
+                    "value": [
+                      {
+                        "_id": "507f1f77bcf86cd799439011",
+                        "name": "Juan Pérez",
+                        "email": "juan.perez@email.com",
+                        "phone": "1234-5678",
+                        "age": 30,
+                        "createdAt": "2024-01-15T10:30:00Z",
+                        "updatedAt": "2024-01-15T10:30:00Z"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear un nuevo cliente",
+        "description": "Crea un nuevo cliente en el sistema",
+        "tags": ["Customers"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerInput"
+              },
+              "examples": {
+                "new_customer": {
+                  "value": {
+                    "name": "María García",
+                    "email": "maria.garcia@email.com",
+                    "password": "miPassword123",
+                    "phone": "8765-4321",
+                    "age": 25
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cliente creado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos de entrada inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "validation_error": {
+                    "value": {
+                      "error": "Validation Error",
+                      "message": "juan.perez@email.com is not a valid email!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "El email ya existe",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers/{id}": {
+      "get": {
+        "summary": "Obtener cliente por ID",
+        "description": "Retorna un cliente específico por su ID",
+        "tags": ["Customers"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID del cliente (ObjectId de MongoDB)",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$"
+            },
+            "example": "507f1f77bcf86cd799439011"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cliente encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Cliente no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar cliente",
+        "description": "Actualiza los datos de un cliente existente",
+        "tags": ["Customers"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID del cliente (ObjectId de MongoDB)",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$"
+            },
+            "example": "507f1f77bcf86cd799439011"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cliente actualizado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos de entrada inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Cliente no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar cliente",
+        "description": "Elimina un cliente del sistema",
+        "tags": ["Customers"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID del cliente (ObjectId de MongoDB)",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$"
+            },
+            "example": "507f1f77bcf86cd799439011"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cliente eliminado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Cliente eliminado exitosamente"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Cliente no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reservations": {
+      "get": {
+        "summary": "Obtener todas las reservaciones",
+        "description": "Retorna una lista de todas las reservaciones",
+        "tags": ["Reservations"],
+        "responses": {
+          "200": {
+            "description": "Lista de reservaciones obtenida exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Reservation"
+                  }
+                },
+                "examples": {
+                  "success": {
+                    "value": [
+                      {
+                        "_id": "507f1f77bcf86cd799439012",
+                        "clientID": "507f1f77bcf86cd799439011",
+                        "vehicle": "Toyota Corolla 2020",
+                        "service": "Mantenimiento preventivo",
+                        "status": "pendiente",
+                        "createdAt": "2024-01-15T10:30:00Z",
+                        "updatedAt": "2024-01-15T10:30:00Z"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear una nueva reservación",
+        "description": "Crea una nueva reservación en el sistema",
+        "tags": ["Reservations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReservationInput"
+              },
+              "examples": {
+                "new_reservation": {
+                  "value": {
+                    "clientID": "507f1f77bcf86cd799439011",
+                    "vehicle": "Honda Civic 2021",
+                    "service": "Cambio de aceite",
+                    "status": "pendiente"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Reservación creada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reservation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos de entrada inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reservations/{id}": {
+      "get": {
+        "summary": "Obtener reservación por ID",
+        "description": "Retorna una reservación específica por su ID",
+        "tags": ["Reservations"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID de la reservación (ObjectId de MongoDB)",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$"
+            },
+            "example": "507f1f77bcf86cd799439012"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reservación encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reservation"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Reservación no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar reservación",
+        "description": "Actualiza los datos de una reservación existente",
+        "tags": ["Reservations"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID de la reservación (ObjectId de MongoDB)",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$"
+            },
+            "example": "507f1f77bcf86cd799439012"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReservationInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reservación actualizada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reservation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos de entrada inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Reservación no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar reservación",
+        "description": "Elimina una reservación del sistema",
+        "tags": ["Reservations"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID de la reservación (ObjectId de MongoDB)",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$"
+            },
+            "example": "507f1f77bcf86cd799439012"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reservación eliminada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Reservación eliminada exitosamente"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Reservación no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "ID único del cliente",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "name": {
+            "type": "string",
+            "description": "Nombre del cliente",
+            "minLength": 3,
+            "maxLength": 50,
+            "pattern": "^[a-zA-Z\\s]+$",
+            "example": "Juan Pérez"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email del cliente",
+            "example": "juan.perez@email.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "Contraseña del cliente (hash)",
+            "minLength": 6,
+            "maxLength": 1024,
+            "example": "$2a$10$..."
+          },
+          "phone": {
+            "type": "string",
+            "description": "Número de teléfono del cliente",
+            "pattern": "^\\d{4}-\\d{4}$",
+            "example": "1234-5678"
+          },
+          "age": {
+            "type": "integer",
+            "description": "Edad del cliente",
+            "minimum": 0,
+            "maximum": 120,
+            "example": 30
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha de creación",
+            "example": "2024-01-15T10:30:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha de última actualización",
+            "example": "2024-01-15T10:30:00Z"
+          }
+        }
+      },
+      "CustomerInput": {
+        "type": "object",
+        "required": ["name", "email", "password", "phone", "age"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Nombre del cliente",
+            "minLength": 3,
+            "maxLength": 50,
+            "pattern": "^[a-zA-Z\\s]+$",
+            "example": "Juan Pérez"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email del cliente",
+            "example": "juan.perez@email.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "Contraseña del cliente",
+            "minLength": 6,
+            "maxLength": 1024,
+            "example": "miPassword123"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Número de teléfono del cliente",
+            "pattern": "^\\d{4}-\\d{4}$",
+            "example": "1234-5678"
+          },
+          "age": {
+            "type": "integer",
+            "description": "Edad del cliente",
+            "minimum": 0,
+            "maximum": 120,
+            "example": 30
+          }
+        }
+      },
+      "Reservation": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "ID único de la reservación",
+            "example": "507f1f77bcf86cd799439012"
+          },
+          "clientID": {
+            "type": "string",
+            "description": "ID del cliente que realiza la reservación",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "vehicle": {
+            "type": "string",
+            "description": "Vehículo para el servicio",
+            "minLength": 3,
+            "maxLength": 50,
+            "pattern": "^[a-zA-Z0-9\\s]+$",
+            "example": "Toyota Corolla 2020"
+          },
+          "service": {
+            "type": "string",
+            "description": "Tipo de servicio solicitado",
+            "minLength": 3,
+            "maxLength": 100,
+            "pattern": "^[a-zA-Z\\s]+$",
+            "example": "Mantenimiento preventivo"
+          },
+          "status": {
+            "type": "string",
+            "description": "Estado de la reservación",
+            "enum": ["pendiente", "confirmado", "cancelado", "completado"],
+            "default": "pendiente",
+            "example": "pendiente"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha de creación",
+            "example": "2024-01-15T10:30:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha de última actualización",
+            "example": "2024-01-15T10:30:00Z"
+          }
+        }
+      },
+      "ReservationInput": {
+        "type": "object",
+        "required": ["clientID", "vehicle", "service"],
+        "properties": {
+          "clientID": {
+            "type": "string",
+            "description": "ID del cliente que realiza la reservación",
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "vehicle": {
+            "type": "string",
+            "description": "Vehículo para el servicio",
+            "minLength": 3,
+            "maxLength": 50,
+            "pattern": "^[a-zA-Z0-9\\s]+$",
+            "example": "Toyota Corolla 2020"
+          },
+          "service": {
+            "type": "string",
+            "description": "Tipo de servicio solicitado",
+            "minLength": 3,
+            "maxLength": 100,
+            "pattern": "^[a-zA-Z\\s]+$",
+            "example": "Mantenimiento preventivo"
+          },
+          "status": {
+            "type": "string",
+            "description": "Estado de la reservación",
+            "enum": ["pendiente", "confirmado", "cancelado", "completado"],
+            "default": "pendiente",
+            "example": "pendiente"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Mensaje de error",
+            "example": "Error en la validación de datos"
+          },
+          "message": {
+            "type": "string",
+            "description": "Descripción detallada del error",
+            "example": "El email ya existe en el sistema"
+          },
+          "details": {
+            "type": "object",
+            "description": "Detalles adicionales del error",
+            "example": {
+              "field": "email",
+              "value": "juan.perez@email.com"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Customers",
+      "description": "Operaciones relacionadas con la gestión de clientes"
+    },
+    {
+      "name": "Reservations",
+      "description": "Operaciones relacionadas con la gestión de reservaciones"
+    }
+  ]
+}
